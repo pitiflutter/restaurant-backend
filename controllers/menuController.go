@@ -14,7 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"gopkg.in/check.v1"
+ 
 )
 var menuCollection *mongo.Collection = database.OpenCollection(database.Client,"menu")
 
@@ -114,10 +114,14 @@ func UpdateMenu()gin.HandlerFunc{
 		opt := options.UpdateOptions{
 			Upsert: &upsert,
 		}
-		result , err := menuCollection.UpdateOne(ctx,filter,bson.D{
-			"$set",updateObj
+		result , err := menuCollection.UpdateOne(
+			ctx,
+			filter,
+			bson.D{
+				{"$set", updateObj},
 			},
-			&opt)
+			&opt,
+		)
 			if err!= nil {
 				msg := "an error occured update object"
 				c.JSON(http.StatusInternalServerError,gin.H{"error":msg})
