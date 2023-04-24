@@ -27,10 +27,6 @@ func GetUsers() gin.HandlerFunc {
 			return
 		}
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-		if err := helper.CheckUserType(c, "USER"); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
 		recordPerPage, err := strconv.Atoi(c.Query("recordPerPage"))
 		if err != nil || recordPerPage < 1 {
 			recordPerPage = 10
@@ -40,8 +36,6 @@ func GetUsers() gin.HandlerFunc {
 		if err1 != nil || page < 1 {
 			page = 1
 		}
-
- 
 		matchStage := bson.D{{"$match", bson.D{{}}}}
 		projectStage := bson.D{
 			{"$project", bson.D{
