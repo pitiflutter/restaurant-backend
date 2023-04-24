@@ -7,6 +7,7 @@ import (
 	"math"
 	"net/http"
 	"restaurant/database"
+	helper "restaurant/helpers"
 	"restaurant/models"
 	"strconv"
 	"time"
@@ -59,7 +60,7 @@ func GetFoods() gin.HandlerFunc {
 		if err = result.All(ctx, &allFoods); err != nil {
 			log.Fatal(err)
 		}
-		c.JSON(http.StatusOK, allFoods[0])
+		c.JSON(http.StatusOK, gin.H{"results":allFoods[0]})
 	}
 }
 func GetFood() gin.HandlerFunc {
@@ -80,6 +81,10 @@ func CreateFood() gin.HandlerFunc {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		var menu models.Menu
 		var food models.Food
+		if err := helper.CheckUserType(c, "ADMIN"); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
 		if err := c.BindJSON(&food); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -126,7 +131,10 @@ func UpdateFood() gin.HandlerFunc {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		var food models.Food
 		var menu models.Menu
-
+		if err := helper.CheckUserType(c, "ADMIN"); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		if err := c.BindJSON(&food); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return

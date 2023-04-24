@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"restaurant/database"
+	helper "restaurant/helpers"
 	"restaurant/models"
 	"time"
 
@@ -14,7 +15,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
- 
 )
 var menuCollection *mongo.Collection = database.OpenCollection(database.Client,"menu")
 
@@ -43,8 +43,10 @@ func CreateMenu()gin.HandlerFunc{
 	return func (c *gin.Context)  {
 		var ctx , cancel = context.WithTimeout(context.Background(),100*time.Second)
 		var menu models.Menu
-		 
-
+		if err := helper.CheckUserType(c, "ADMIN"); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		if err := c.BindJSON(&menu);err !=nil{
 			c.JSON(http.StatusBadRequest,gin.H{"error":err.Error()})
 			return
@@ -76,6 +78,10 @@ func inTimeSpan(start,end,check time.Time)bool{
 }
 func UpdateMenu()gin.HandlerFunc{
 	return func (c *gin.Context)  {
+		if err := helper.CheckUserType(c, "ADMIN"); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		var ctx , cancel = context.WithTimeout(context.Background(),100*time.Second)
 		var menu models.Menu
 

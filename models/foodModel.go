@@ -15,4 +15,5 @@ type Food struct {
 	Updated_at time.Time          `json:"update_at"`
 	Food_id    string             `json:"food_id"`
 	Menu_id    *string            `json:"menu_id" validate:"required"`
+	Rate       float64            `json:"rate"`
 }
