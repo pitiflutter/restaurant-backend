@@ -146,7 +146,7 @@ func SignUp() gin.HandlerFunc {
 		user.Refresh_Token = &refreshToken
 		//if all ok, then you insert this new user into the user collection
 
-		resultInsertionNumber, insertErr := userCollection.InsertOne(ctx, user)
+		_, insertErr := userCollection.InsertOne(ctx, user)
 		if insertErr != nil {
 			msg := fmt.Sprintf("User item was not created")
 			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
@@ -155,7 +155,7 @@ func SignUp() gin.HandlerFunc {
 		defer cancel()
 		//return status OK and send the result back
 
-		c.JSON(http.StatusOK, resultInsertionNumber)
+		c.JSON(http.StatusOK, gin.H{"token":token})
 	}
 }
 
@@ -176,6 +176,7 @@ func Login() gin.HandlerFunc {
 		//find a user with that email and see if that user even exists
 
 		err := userCollection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
+		fmt.Println(foundUser.First_name)
 		defer cancel()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "user not found, login seems to be incorrect"})

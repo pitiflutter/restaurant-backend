@@ -36,7 +36,7 @@ func GenerateAllTokens(email string, firstName string, lastName string,usertype 
 		Uid:        uid,
 		User_type: usertype,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(24)).Unix(),
+			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(72)).Unix(),
 		},
 	}
 
