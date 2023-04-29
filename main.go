@@ -24,6 +24,7 @@ func main(){
  	router.Use(middleware.Authentication())
 	routes.UserRoutes(router)
  	routes.FoodRoutes(router)
+	routes.FavoriteRoutes(router)
 	routes.MenuRoutes(router)
 	routes.TableRoutes(router)
 	routes.OrderRoutes(router)

@@ -10,7 +10,7 @@ func FoodRoutes( engine *gin.Engine){
 	engine.PATCH("/foods/:food_id",controller.UpdateFood())
 }
 func FavoriteRoutes(engine *gin.Engine){
-	engine.GET("/favorites/user_id" ,controller.GetFavorites())
- 	engine.POST("/favorites/user_id",controller.CreateFavorite())
-	engine.DELETE("/favorites/favorite_id",controller.DeleteFavorite())
+	engine.GET("/favorites/:user_id" ,controller.GetFavorites())
+ 	engine.POST("/favorites",controller.CreateFavorite())
+	engine.DELETE("/favorites/:favorite_id",controller.DeleteFavorite())
 }
