@@ -92,19 +92,9 @@ func CreateFavorite() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": validationError.Error()})
 			return
 		}
-		filter := bson.D{{"food_id", favorite.Favorite_id}}
-		favorite.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+ 		favorite.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		favorite.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		favorite.ID = primitive.NewObjectID()
-		err := foodCollection.FindOne(context.TODO(),filter).Decode(favorite)
-	
-		if err != nil {
-			if err == mongo.ErrNoDocuments {
-				// This error means your query did not match any documents.
-				return
-			}
-			panic(err)
-		}
 		favorite.Favorite_id = favorite.ID.Hex()
 	 
 

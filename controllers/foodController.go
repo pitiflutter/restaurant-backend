@@ -26,41 +26,47 @@ var validate = validator.New()
 func GetFoods() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-		recordPrePage, err := strconv.Atoi(c.Query("recordPerPage"))
-
-		if err != nil || recordPrePage < 1 {
-			recordPrePage = 10
+ 		recordPerPage, err := strconv.Atoi(c.Query("recordPerPage"))
+		if err != nil || recordPerPage < 1 {
+			recordPerPage = 10
 		}
-		page, err := strconv.Atoi(c.Query("page"))
+		page, err1 := strconv.Atoi(c.Query("page"))
+		if err1 != nil || page < 1 {
+			page = 1
+		}
+
+		 
+		if err != nil || recordPerPage < 1 {
+			recordPerPage = 10
+		}
+		page, err = strconv.Atoi(c.Query("page"))
 		if err != nil || page < 1 {
 			page = 1
 		}
-		startIndex := (page - 1) * recordPrePage
-		startIndex, err = strconv.Atoi(c.Query("startIndex"))
-
-		matchStage := bson.D{{"$match", bson.D{}}}
-		groupStage := bson.D{{"$group", bson.D{{"_id", bson.D{{"_id", "null"}}}, {"data", bson.D{{"$push", "$$ROOT"}}}}}}
 
 		projectStage := bson.D{
-			{
-				"$project", bson.D{
-					{"_id", 0},
-					{"total_count", 1},
-					{"food_items", bson.D{{"$slice", []interface{}{"$data", startIndex, recordPrePage}}}},
-				}}}
-
+			{Key: "$project", Value: bson.D{
+				{Key: "name", Value: 1},
+				{Key: "price", Value: 1}, 
+				{Key: "rate", Value: 1}, 
+				{Key: "food_id", Value: 1}, 
+				{Key: "menu_id", Value: 1}, 
+				{Key: "food_image", Value: 1}, 
+				{Key: "description", Value: 1},
+				 }}}
 		result, err := foodCollection.Aggregate(ctx, mongo.Pipeline{
-			matchStage, groupStage, projectStage})
+			projectStage})
 		defer cancel()
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{"error": "error occured while listing food items"})
 
 		}
-		var allFoods []bson.M
+		var allFoods [] bson.M
+		fmt.Println(allFoods)
 		if err = result.All(ctx, &allFoods); err != nil {
 			log.Fatal(err)
 		}
-		c.JSON(http.StatusOK, gin.H{"results":allFoods[0]})
+		c.JSON(http.StatusOK, allFoods)
 	}
 }
 func GetFood() gin.HandlerFunc {
