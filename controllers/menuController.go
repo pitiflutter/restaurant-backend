@@ -22,17 +22,26 @@ var menuCollection *mongo.Collection = database.OpenCollection(database.Client, 
 func GetMenus() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
-		result, err := menuCollection.Find(context.TODO(), bson.M{})
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while listing the menu items"})
-		}
+		
+		projectStage := bson.D{
+			{Key: "$project", Value: bson.D{
+				{Key: "_id",Value: 0},
+				{Key: "name", Value: 1},
+				{Key: "menu_id", Value: 1}, 
+				 }}}
+		result, err := menuCollection.Aggregate(ctx, mongo.Pipeline{
+			projectStage})
 		defer cancel()
-		var allMenus []bson.M
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{"error": "error occured while listing menu items"})
 
-		if err = result.All(ctx, &allMenus); err != nil {
+		}
+		var allmenus [] bson.M
+		fmt.Println(allmenus)
+		if err = result.All(ctx, &allmenus); err != nil {
 			log.Fatal(err)
 		}
-		c.JSON(http.StatusOK, allMenus)
+		c.JSON(http.StatusOK, allmenus)
 	}
 }
 func GetMenu() gin.HandlerFunc {

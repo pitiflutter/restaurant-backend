@@ -9,8 +9,7 @@ import (
 	"restaurant/database"
 	helper "restaurant/helpers"
 	"restaurant/models"
-	"strconv"
-	"time"
+ 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -26,36 +25,12 @@ var validate = validator.New()
 func GetFoods() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
- 		recordPerPage, err := strconv.Atoi(c.Query("recordPerPage"))
-		if err != nil || recordPerPage < 1 {
-			recordPerPage = 10
-		}
-		page, err1 := strconv.Atoi(c.Query("page"))
-		if err1 != nil || page < 1 {
-			page = 1
-		}
+ 	 
+		matchStage := bson.D{{"$match", bson.D{}}}
 
 		 
-		if err != nil || recordPerPage < 1 {
-			recordPerPage = 10
-		}
-		page, err = strconv.Atoi(c.Query("page"))
-		if err != nil || page < 1 {
-			page = 1
-		}
-
-		projectStage := bson.D{
-			{Key: "$project", Value: bson.D{
-				{Key: "name", Value: 1},
-				{Key: "price", Value: 1}, 
-				{Key: "rate", Value: 1}, 
-				{Key: "food_id", Value: 1}, 
-				{Key: "menu_id", Value: 1}, 
-				{Key: "food_image", Value: 1}, 
-				{Key: "description", Value: 1},
-				 }}}
 		result, err := foodCollection.Aggregate(ctx, mongo.Pipeline{
-			projectStage})
+			matchStage})
 		defer cancel()
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{"error": "error occured while listing food items"})
