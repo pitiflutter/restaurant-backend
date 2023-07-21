@@ -15,4 +15,5 @@ type Order struct{
 	Updated_at time.Time `json:"updated_at"`
 	Order_id string `json:"order_id"`
 	Table_id *string  `json:"table_id" validate:"required"`
+	User_Id *string `json:"user_id"`
 }

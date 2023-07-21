@@ -15,8 +15,8 @@ import (
 )
 
 type OrderItemPack struct {
-	Table_id    *string
-	Order_items []models.OrderItem
+	Table_id    *string `json:"table_id"`
+	Order_items []models.OrderItem `json:"order_items"`
 }
 
 var orderItemCollection *mongo.Collection = database.OpenCollection(database.Client, "orderItem")
@@ -58,9 +58,9 @@ func GetOrderItemsByOrder() gin.HandlerFunc {
 func ItemsByOrder(id string) (OrderItems []primitive.M, err error) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 
-	matchStage := bson.D{{"$match", bson.D{{"order_id", id}}}}
-	lookupStage := bson.D{{"$lookup", bson.D{{"from", "food"}, {"localField", "food_id"}, {"foreignField", "food_id"}, {"as", "food"}}}}
-	unwindStage := bson.D{{"$unwind", bson.D{{"path", "$food"}, {"preserveNullAndEmptyArrays", true}}}}
+	matchStage := bson.D{{Key: "$match", Value: bson.D{{Key: "order_id", Value: id}}}}
+	lookupStage := bson.D{{Key: "$lookup", Value: bson.D{{Key: "from", Value: "food"}, {Key: "localField", Value: "food_id"}, {"foreignField", "food_id"}, {"as", "food"}}}}
+	unwindStage := bson.D{{Key: "$unwind", Value: bson.D{{Key: "path", Value: "$food"}, {Key: "preserveNullAndEmptyArrays", Value: true}}}}
 
 	lookupOrderStage := bson.D{{"$lookup", bson.D{{"from", "order"}, {"localField", "order_id"}, {"foreignField", "order_id"}, {"as", "order"}}}}
 	unwindOrderStage := bson.D{{"$unwind", bson.D{{"path", "$order"}, {"preserveNullAndEmptyArrays", true}}}}

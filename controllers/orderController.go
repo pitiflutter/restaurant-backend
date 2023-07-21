@@ -23,15 +23,18 @@ var orderCollection *mongo.Collection = database.OpenCollection(database.Client,
 
 func GetOrders() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+ userId:=c.GetString("uid")
+ 
+fmt.Println(c.GetString("first_name"))
+cursor, err := orderCollection.Find(context.Background(), bson.M{"user_id": userId})
+if err != nil {
+	c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while listing order items"})
+}
 
-		result, err := orderCollection.Find(context.TODO(), bson.M{})
-		defer cancel()
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while listing order items"})
-		}
+defer cursor.Close(context.Background())
+ 
 		var allOrders []bson.M
-		if err = result.All(ctx, &allOrders); err != nil {
+		if err = cursor.All(ctx, &allOrders); err != nil {
 			log.Fatal(err)
 		}
 		c.JSON(http.StatusOK, allOrders)
@@ -74,7 +77,8 @@ func CreateOrder() gin.HandlerFunc {
 			err := tableCollection.FindOne(ctx, bson.M{"table_id": order.Table_id}).Decode(&table)
 			defer cancel()
 			if err != nil {
-				msg := fmt.Sprintf("message:Table was not found")
+				msg := fmt.Sprintf("Table was not found")
+				fmt.Println("error occured here")
 				c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 				return
 			}
